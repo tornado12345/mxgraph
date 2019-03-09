@@ -1,3 +1,41 @@
+14-DEC-2018: 3.9.12
+
+- Fixes mxGraph.getSelectionCellsForChanges
+- Fixes duplicate clones in mxGraphModel.cloneCellImpl
+- Fixes invalidation bug in mxGraph.processChange
+- Adds mxGraph.cloneCell helper function
+- Fixes possible NPE in mxEdgeSegmentHandler.start
+- Ignores errors in mxEvent.release, mxPrintPreview.closeDocument
+- Adds keepPosition in mxGraph.cloneCells
+- Updates move preview during remote changes
+
+06-NOV-2018: 3.9.11
+
+- Fixes use of undefined variable in mxGraphLayout.isAncestor
+- Fixes lookup for clones in mxGraphModel.cloneCells
+- Improved handling for numeric values in mxObjectCodec
+- Removes ctor error in mxCodec.getElementById
+- Adds boolean clone argument in mxGuide.move
+
+08-OCT-2018: 3.9.10
+
+- Fixes swimlane rendering for certain arc sizes
+- Ignores constraint check for different source and target in mxConnectionHandler
+
+21-SEP-2018: 3.9.9
+
+- Uses mxRectangleShape.paintBackground in mxSwimlane
+- Fixes cell order, adds checkConstraints in mxConnectionHandler
+- Fixes duplicate call to onload in mxXmlRequest.send
+- Removes mxEvent.objects and mxClient.dispose
+- Fixes mxPrintPreview.appendGraph for IE and Edge
+- Using CSS transform in mxPrintPreview (experimental)
+- Adds mxShape.isRoundable
+
+06-JUL-2018: 3.9.8
+
+- Fixes incorrect logging level in codecs
+
 22-JUN-2018: 3.9.7
 
 - Adds mxCylinder.getCylinderSize

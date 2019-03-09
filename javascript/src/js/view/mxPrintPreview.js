@@ -570,6 +570,14 @@ mxPrintPreview.prototype.open = function(css, targetWindow, forcePageBreaks, kee
 				doc.writeln(div.outerHTML);
 				div.parentNode.removeChild(div);
 			}
+			else if (mxClient.IS_IE || document.documentMode >= 11 || mxClient.IS_EDGE)
+			{
+				var clone = doc.createElement('div');
+				clone.innerHTML = div.outerHTML;
+				clone = clone.getElementsByTagName('div')[0];
+				doc.body.appendChild(clone);
+				div.parentNode.removeChild(div);
+			}
 			else
 			{
 				div.parentNode.removeChild(div);
@@ -680,17 +688,24 @@ mxPrintPreview.prototype.addPageBreak = function(doc)
  */
 mxPrintPreview.prototype.closeDocument = function()
 {
-	if (this.wnd != null && this.wnd.document != null)
+	try
 	{
-		var doc = this.wnd.document;
-		
-		this.writePostfix(doc);
-		doc.writeln('</body>');
-		doc.writeln('</html>');
-		doc.close();
-		
-		// Removes all event handlers in the print output
-		mxEvent.release(doc.body);
+		if (this.wnd != null && this.wnd.document != null)
+		{
+			var doc = this.wnd.document;
+			
+			this.writePostfix(doc);
+			doc.writeln('</body>');
+			doc.writeln('</html>');
+			doc.close();
+			
+			// Removes all event handlers in the print output
+			mxEvent.release(doc.body);
+		}
+	}
+	catch (e)
+	{
+		// ignore any errors resulting from wnd no longer being available
 	}
 };
 
@@ -960,6 +975,20 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	if (this.graph.dialect == mxConstants.DIALECT_SVG)
 	{
 		view.createSvg();
+		
+		// Uses CSS transform for scaling
+		if (!mxClient.NO_FO)
+		{
+			var g = view.getDrawPane().parentNode;
+			var prev = g.getAttribute('transform');
+			g.setAttribute('transformOrigin', '0 0');
+			g.setAttribute('transform', 'scale(' + scale + ',' + scale + ')' +
+				'translate(' + dx + ',' + dy + ')');
+			
+			scale = 1;
+			dx = 0;
+			dy = 0;
+		}
 	}
 	else if (this.graph.dialect == mxConstants.DIALECT_VML)
 	{
@@ -986,7 +1015,7 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 	var redraw = this.graph.cellRenderer.redraw;
 	var states = view.states;
 	var s = view.scale;
-	
+
 	// Gets the transformed clip for intersection check below
 	if (this.clipping)
 	{
@@ -1009,7 +1038,7 @@ mxPrintPreview.prototype.addGraphFragment = function(dx, dy, scale, pageNumber, 
 					// Stops rendering if outside clip for speedup
 					if (bbox != null && !mxUtils.intersects(tempClip, bbox))
 					{
-						return;
+						//return;
 					}
 				}
 			}

@@ -100,7 +100,7 @@ Editor.useLocalStorage = typeof(Storage) != 'undefined' && mxClient.IS_IOS;
 /**
  * Images below are for lightbox and embedding toolbars.
  */
-Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAXVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC5BxTwAAAAH3RSTlMAlUF8boNQIE0LBgOgkGlHNSwqFIx/dGVUOjApmV9ezNACSAAAAIVJREFUGNNtjNsOgzAMQ5NeoVcKDAZs+//PXLKI8YKlWvaRU7jXuFpb9qsbdK05XILUiE8JHQox1Pv3OgFUzf1AGqWqUg+QBwLF0YAeegBlCNgRWOpB5vUfTCmeoHQ/wNdy0jLH/cM+b+wLTw4n/7ACEmHVVy8h6qy8V7MNcGowWpsNbvUFcGUEdSi1s/oAAAAASUVORK5CYII=' :
+Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDB6Ii8+PHBhdGggZD0iTTExIDE4aDJ2LTJoLTJ2MnptMS0xNkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6bTAtMTRjLTIuMjEgMC00IDEuNzktNCA0aDJjMC0xLjEuOS0yIDItMnMyIC45IDIgMmMwIDItMyAxLjc1LTMgNWgyYzAtMi4yNSAzLTIuNSAzLTUgMC0yLjIxLTEuNzktNC00LTR6Ii8+PC9zdmc+' :
 	IMAGE_PATH + '/help.png';
 
 /**
@@ -337,7 +337,7 @@ Editor.prototype.editAsNew = function(xml, title)
 			}
 
 			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p +
-				((p.length > 0) ? '&' : '?') + 'client=1'));
+				((p.length > 0) ? '&' : '?') + 'client=1'), null, true);
 		}
 		else
 		{
@@ -381,9 +381,12 @@ Editor.prototype.resetGraph = function()
 	this.graph.pageVisible = this.graph.defaultPageVisible;
 	this.graph.pageBreaksVisible = this.graph.pageVisible; 
 	this.graph.preferPageSize = this.graph.pageBreaksVisible;
-	this.graph.background = this.graph.defaultGraphBackground;
+	this.graph.background = null;
 	this.graph.pageScale = mxGraph.prototype.pageScale;
 	this.graph.pageFormat = mxGraph.prototype.pageFormat;
+	this.graph.currentScale = 1;
+	this.graph.currentTranslate.x = 0;
+	this.graph.currentTranslate.y = 0;
 	this.updateGraphComponents();
 	this.graph.view.setScale(1);
 };
@@ -407,9 +410,9 @@ Editor.prototype.readGraphState = function(node)
 		this.graph.cellRenderer.forceControlClickHandler = this.graph.foldingEnabled;
 	}
 	
-	var ps = node.getAttribute('pageScale');
+	var ps = parseFloat(node.getAttribute('pageScale'));
 	
-	if (ps != null)
+	if (!isNaN(ps) && ps > 0)
 	{
 		this.graph.pageScale = ps;
 	}
@@ -439,12 +442,12 @@ Editor.prototype.readGraphState = function(node)
 	this.graph.pageBreaksVisible = this.graph.pageVisible; 
 	this.graph.preferPageSize = this.graph.pageBreaksVisible;
 	
-	var pw = node.getAttribute('pageWidth');
-	var ph = node.getAttribute('pageHeight');
+	var pw = parseFloat(node.getAttribute('pageWidth'));
+	var ph = parseFloat(node.getAttribute('pageHeight'));
 	
-	if (pw != null && ph != null)
+	if (!isNaN(pw) && !isNaN(ph))
 	{
-		this.graph.pageFormat = new mxRectangle(0, 0, parseFloat(pw), parseFloat(ph));
+		this.graph.pageFormat = new mxRectangle(0, 0, pw, ph);
 	}
 
 	// Loads the persistent state settings
@@ -456,7 +459,7 @@ Editor.prototype.readGraphState = function(node)
 	}
 	else
 	{
-		this.graph.background = this.graph.defaultGraphBackground;
+		this.graph.background = null;
 	}
 };
 
@@ -625,7 +628,7 @@ Editor.prototype.createUndoManager = function()
 		
 		for (var i = 0; i < cand.length; i++)
 		{
-			if ((model.isVertex(cand[i]) || model.isEdge(cand[i])) && graph.view.getState(cand[i]) != null)
+			if (graph.view.getState(cand[i]) != null)
 			{
 				cells.push(cand[i]);
 			}
@@ -722,7 +725,7 @@ OpenFile.prototype.cancel = function(cancel)
 /**
  * Basic dialogs that are available in the viewer (print dialog).
  */
-function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll)
+function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent)
 {
 	var dx = 0;
 	
@@ -739,10 +742,12 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll)
 	var w0 = w;
 	var h0 = h;
 	
-	var dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
+	// clientHeight check is attempted fix for print dialog offset in viewer lightbox
+	var dh = (document.documentElement.clientHeight > 0) ? document.documentElement.clientHeight :
+		Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight);
 	var left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-
+	
 	// Keeps window size inside available space
 	if (!mxClient.IS_QUIRKS)
 	{
@@ -786,7 +791,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll)
 		document.body.appendChild(this.bg);
 	}
 	
-	var div = editorUi.createDiv('geDialog');
+	var div = editorUi.createDiv(transparent? 'geTransDialog' : 'geDialog');
 	var pos = this.getPosition(left, top, w, h);
 	left = pos.x;
 	top = pos.y;
@@ -1642,12 +1647,16 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 			customDiv.style.display = '';
 		}
 		
-		if (isNaN(parseFloat(widthInput.value)))
+		var wi = parseFloat(widthInput.value);
+		
+		if (isNaN(wi) || wi <= 0)
 		{
 			widthInput.value = pageFormat.width / 100;
 		}
-
-		if (isNaN(parseFloat(heightInput.value)))
+		
+		var hi = parseFloat(heightInput.value);
+		
+		if (isNaN(hi) || hi <= 0)
 		{
 			heightInput.value = pageFormat.height / 100;
 		}
