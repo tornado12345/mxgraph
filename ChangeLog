@@ -1,3 +1,124 @@
+28-OCT-2020: 4.2.2
+
+- Corrected build process
+
+28-OCT-2020: 4.2.1
+
+- Removes leading and trailing spaces for text in mxUtils.getPrettyXml
+- Adds option for mxVertexHandler.movePreviewToFront
+- Adds optional arguments, redraw of parent highlight
+- Fixes ignored pointerEvents flag for text in SVG
+- Adds mxShape.beforePaint and afterPaint hooks
+
+19-JUN-2020: 4.2.0
+
+- Adds ghost preview in mxVertexHandler
+- Makes mxHandle.positionChanged optional
+- Executes bottom to top before top to bottom in mxLayoutManager
+- Adds selection handling for cell hierarchies
+- Adds event transparency for filled swimlane content
+- Adds mxSelectionCellsHandler.isHandled
+- Adds mxGraph.getCellToSelect
+- Adds mxGraphHandler.isPropagateSelectionCell
+- Removes mxClient.IOS_VERSION and workaround for event handling
+- Fixes mxClient.IS_SF for iframe
+- Adds optional textWidth for mxGraph.getPreferredSizeForCell
+- Adds vertical switch for mxLine
+- Adds mxLayoutManager.hasLayout hook
+- Adds optional shape argument in mxHandle
+- Adds mxGraphHandler.getHandledSelectionCells
+- Adds mxVertexHandler.getSizerBounds, isParentHighlightVisible, getSelectionBorderBounds
+
+31-MAR-2020: 4.1.1
+
+- Fixes use of userAgent to detect browsers and platforms
+- Reduces number of layout runs in mxLayoutManager
+- Adds resizeCell in mxGraphLayout
+- Adds eventName in mxLayoutManager.getLayout
+- Uses all layers in getSwimlaneAt
+- Fixes update of indicator shape after style change
+- Adds support for referenced font colors
+
+24-JAN-2020: 4.1.0
+
+- Adds mxEdgeHandler.isCellEnabled
+- Enables reflow in HTML output
+- Fixes mxUtils.equalPoints
+- Fixes event handling for desktop mode in mobile Safari
+- Adds mxGraph.snapDelta, uses raster for moving cells
+- Adds optional cells argument in mxGraphHandler.start
+- Fixes mxGraph.sizeDidChange for negative coordinates
+- Allows for corner rotation in mxVertexHandler
+- Adds mxGraphHandler.suspend and resume
+- Fixes moving and resizing on iOS 13
+- Adds mxSvgCanvas2D.addForeignObject
+- Adds mxClient.IOS_VERSION
+
+08-NOV-2019: 4.0.6
+
+- New vagrant build system
+- Fixes ignored direction for horizontal/vertical flip in mxGraph.getConnectionPoint
+- Consumes iOS touch events by default in mxMouseEvent.consume
+- Fixes handling of empty strings in mxCell.getAttribute
+- Restores clipping in mxPrintPreview
+
+17-OCT-2019: 4.0.5
+
+- Fixes border handling in mxGraph.fit, center and sizeDidChange
+- Makes mxXmlUtils.getDocumentBuilder thread-safe [382]
+- Fixes ignored alignment in mxGraph.cellSizeUpdated
+- Adds optional argument in redraw for handlers
+- Disables resize live preview for groups
+- Adds mxGraphHandler.maxLivePreview
+- Adds mxGuide.isStateIgnored hook
+
+20-AUG-2019: 4.0.4
+
+- Moved PHP code to own repo
+- Adds DPI support in advanced dialog
+
+26-JUL-2019: 4.0.3
+
+- Reverts forcing quotes around font names in CSS and SVG
+- Ignores hidden cells in mxGraph.selectAll
+- Adds mxClient.IS_CHROMEOS
+
+15-JUL-2019: 4.0.2
+
+- Adds mxCellEditor.setAlign for block alignment changes
+- Adds validation for label background and border colors
+- Adds mxGraphHandler.removeEmptyParents
+
+02-JUL-2019: 4.0.1
+
+- Forces quotes around font names in CSS and SVG
+- No longer prevents default for pen/touch events in mxMouseEvent
+- Adds validation for color codes
+- Fixes handling of Infinity in mxObjectCodec
+- Add target for Chrome in mxEvent.addMouseWheelListener
+- Removes scroll handler in mxOutline.destroy
+- Adds mxStackLayout.allowGaps and gridSize
+- Fixes possible NPE in mxGraph.sizeDidChange
+
+11-MAR-2019: 4.0.0
+
+- mxClient.IS_SVG is true for all non-VML browsers
+- Adds mxCellState.invalidStyle
+- Removes mxGraph.EMPTY_ARRAY
+- Fixes events for transparent unclosed SVG paths
+- Adds mxGuide.rounded, getDelta
+- Disables drag and drop for text in mxCellEditor
+- Adds mxUtils.getDocumentSize
+- Handles self references and duplicates in mxCodec
+- Make navigation steps significant in undo history
+- Fixes terminal point after disconnect with navigation
+- Adds invisible connected edges in mxGraph.removeCells
+- Ignores current root in mxGraphView.getVisibleTerminal
+- Adds mxGraph.updateSelection
+- Fixes edit replay for mxChildChange
+- Removes mxGraph.getRemovedCellsForChanges
+- Fixes possible type errors in mxSvgCanvas
+
 14-DEC-2018: 3.9.12
 
 - Fixes mxGraph.getSelectionCellsForChanges
